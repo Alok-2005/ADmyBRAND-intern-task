@@ -28,21 +28,28 @@ export function ThemeProvider({
   storageKey = 'dashboard-theme',
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage?.getItem(storageKey) as Theme) || defaultTheme
-  );
+  // Initialize state without accessing localStorage
+  const [theme, setTheme] = useState<Theme>(defaultTheme);
 
+  // Load theme from localStorage only on client-side mount
+  useEffect(() => {
+    // Check if running in the browser
+    if (typeof window !== 'undefined') {
+      const storedTheme = localStorage.getItem(storageKey) as Theme | null;
+      setTheme(storedTheme || defaultTheme);
+    }
+  }, [defaultTheme, storageKey]);
+
+  // Apply theme to document and handle system theme
   useEffect(() => {
     const root = window.document.documentElement;
 
     root.classList.remove('light', 'dark');
 
     if (theme === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
-        .matches
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
         ? 'dark'
         : 'light';
-
       root.classList.add(systemTheme);
       return;
     }
@@ -53,7 +60,10 @@ export function ThemeProvider({
   const value = {
     theme,
     setTheme: (theme: Theme) => {
-      localStorage?.setItem(storageKey, theme);
+      // Only access localStorage in the browser
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(storageKey, theme);
+      }
       setTheme(theme);
     },
   };
@@ -68,8 +78,9 @@ export function ThemeProvider({
 export const useTheme = () => {
   const context = useContext(ThemeProviderContext);
 
-  if (context === undefined)
+  if (context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider');
+  }
 
   return context;
 };
