@@ -240,9 +240,14 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
         )}
       </AnimatePresence>
 
-      <div className="hidden lg:block">
+      <motion.div 
+        className="hidden lg:block"
+        variants={sidebarVariants}
+        initial={isCollapsed ? 'collapsed' : 'open'}
+        animate={isCollapsed ? 'collapsed' : 'open'}
+      >
         <SidebarContent />
-      </div>
+      </motion.div>
 
       <AnimatePresence>
         {isMobileOpen && (

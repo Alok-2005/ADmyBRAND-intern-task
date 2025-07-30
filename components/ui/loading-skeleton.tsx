@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 interface LoadingSkeletonProps {
   className?: string;
   lines?: number;
+  style?: React.CSSProperties; // Add this line
 }
 
 export function LoadingSkeleton({ className, lines = 1 }: LoadingSkeletonProps) {
@@ -56,10 +57,10 @@ export function ChartSkeleton() {
       <div className="h-64 flex items-end justify-between space-x-2">
         {Array.from({ length: 12 }).map((_, i) => (
           <LoadingSkeleton
-            key={i}
-            className={`w-8 rounded-t`}
-            style={{ height: `${Math.random() * 100 + 50}px` }}
-          />
+  key={i}
+  className={`w-8 rounded-t`}
+  style={{ height: `${Math.random() * 100 + 50}px` }}
+/>
         ))}
       </div>
     </div>
