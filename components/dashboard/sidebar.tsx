@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@/components/theme-provider';
+import { useRouter } from 'next/navigation';
 import {
   HomeIcon,
   ChartBarIcon,
@@ -15,6 +16,7 @@ import {
   XMarkIcon,
   BellIcon,
   UserCircleIcon,
+  ArrowLeftCircleIcon,
 } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -27,6 +29,7 @@ interface SidebarProps {
 }
 
 const navigation = [
+  { id: 'home', name: 'Back to Home', icon: ArrowLeftCircleIcon },
   { id: 'overview', name: 'Overview', icon: HomeIcon },
   { id: 'analytics', name: 'Analytics', icon: ChartBarIcon },
   { id: 'campaigns', name: 'Campaigns', icon: TableCellsIcon },
@@ -39,6 +42,7 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const { theme, setTheme } = useTheme();
+  const router = useRouter();
 
   const themeIcons = {
     light: SunIcon,
@@ -159,7 +163,11 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
               <motion.button
                 key={item.id}
                 onClick={() => {
-                  setActiveTab(item.id);
+                  if (item.id === 'home') {
+                    router.push('/');
+                  } else {
+                    setActiveTab(item.id);
+                  }
                   setIsMobileOpen(false);
                 }}
                 whileHover={{ x: 4, scale: 1.05 }}
