@@ -9,7 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
 
-interface InsightProps {
+export interface InsightProps {
   id: string;
   type: 'opportunity' | 'warning' | 'success';
   title: string;

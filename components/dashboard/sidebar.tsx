@@ -14,10 +14,12 @@ import {
   Bars3Icon,
   XMarkIcon,
   BellIcon,
-  UserCircleIcon
+  UserCircleIcon,
 } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import toast from 'react-hot-toast';
+import { easeInOut } from 'framer-motion';
 
 interface SidebarProps {
   activeTab: string;
@@ -28,6 +30,8 @@ const navigation = [
   { id: 'overview', name: 'Overview', icon: HomeIcon },
   { id: 'analytics', name: 'Analytics', icon: ChartBarIcon },
   { id: 'campaigns', name: 'Campaigns', icon: TableCellsIcon },
+  { id: 'notifications', name: 'Notifications', icon: BellIcon },
+  { id: 'profile', name: 'Profile', icon: UserCircleIcon },
   { id: 'settings', name: 'Settings', icon: CogIcon },
 ];
 
@@ -39,7 +43,7 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   const themeIcons = {
     light: SunIcon,
     dark: MoonIcon,
-    system: ComputerDesktopIcon
+    system: ComputerDesktopIcon,
   };
 
   const ThemeIcon = themeIcons[theme as keyof typeof themeIcons] || SunIcon;
@@ -49,14 +53,57 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
     const currentIndex = themes.indexOf(theme);
     const nextIndex = (currentIndex + 1) % themes.length;
     setTheme(themes[nextIndex] as any);
+    toast.success(`Theme switched to ${themes[nextIndex]}`, {
+      position: 'top-right',
+      duration: 3000,
+    });
+  };
+
+  const sidebarVariants = {
+    open: { 
+      width: 280, 
+      opacity: 1, 
+      scale: 1, 
+      transition: { 
+        duration: 0.3, 
+        ease: easeInOut 
+      } 
+    },
+    collapsed: { 
+      width: 80, 
+      opacity: 1, 
+      scale: 1, 
+      transition: { 
+        duration: 0.3, 
+        ease: easeInOut 
+      } 
+    },
+    mobileOpen: { 
+      x: 0, 
+      opacity: 1, 
+      scale: 1, 
+      transition: { 
+        duration: 0.4, 
+        ease: easeInOut 
+      } 
+    },
+    mobileClosed: { 
+      x: -280, 
+      opacity: 0, 
+      scale: 0.95, 
+      transition: { 
+        duration: 0.4, 
+        ease: easeInOut 
+      } 
+    },
   };
 
   const SidebarContent = () => (
     <motion.div
-      initial={false}
-      animate={{ width: isCollapsed ? 80 : 280 }}
-      transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="flex flex-col h-full bg-card/50 backdrop-blur-sm border-r border-border"
+      initial={isCollapsed ? 'collapsed' : 'open'}
+      animate={isCollapsed ? 'collapsed' : 'open'}
+      variants={sidebarVariants}
+      className="flex flex-col h-full bg-card/50 backdrop-blur-sm border-r border-border shadow-lg"
     >
       {/* Header */}
       <div className="p-6 border-b border-border">
@@ -67,6 +114,7 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
                 className="flex items-center gap-3"
               >
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -79,7 +127,7 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
               </motion.div>
             )}
           </AnimatePresence>
-          
+
           <Button
             variant="ghost"
             size="sm"
@@ -88,7 +136,7 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
           >
             <Bars3Icon className="w-4 h-4" />
           </Button>
-          
+
           <Button
             variant="ghost"
             size="sm"
@@ -114,13 +162,13 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
                   setActiveTab(item.id);
                   setIsMobileOpen(false);
                 }}
-                whileHover={{ x: 4 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ x: 4, scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 className={cn(
-                  "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-all duration-200",
+                  'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-all duration-200',
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-lg"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    ? 'bg-primary text-primary-foreground shadow-lg'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                 )}
               >
                 <Icon className="w-5 h-5 flex-shrink-0" />
@@ -130,6 +178,7 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -10 }}
+                      transition={{ duration: 0.2 }}
                       className="font-medium"
                     >
                       {item.name}
@@ -143,14 +192,11 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-border p-4 space-y-2">
+      <div className="border-t border-border p-4">
         <Button
           variant="ghost"
           onClick={cycleTheme}
-          className={cn(
-            "w-full justify-start gap-3",
-            isCollapsed && "px-3"
-          )}
+          className={cn('w-full justify-start gap-3', isCollapsed && 'px-3')}
         >
           <ThemeIcon className="w-5 h-5" />
           <AnimatePresence>
@@ -159,50 +205,9 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.2 }}
               >
                 {theme === 'system' ? 'System' : theme === 'dark' ? 'Dark' : 'Light'}
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </Button>
-
-        <Button
-          variant="ghost"
-          className={cn(
-            "w-full justify-start gap-3",
-            isCollapsed && "px-3"
-          )}
-        >
-          <BellIcon className="w-5 h-5" />
-          <AnimatePresence>
-            {!isCollapsed && (
-              <motion.span
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-              >
-                Notifications
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </Button>
-
-        <Button
-          variant="ghost"
-          className={cn(
-            "w-full justify-start gap-3",
-            isCollapsed && "px-3"
-          )}
-        >
-          <UserCircleIcon className="w-5 h-5" />
-          <AnimatePresence>
-            {!isCollapsed && (
-              <motion.span
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-              >
-                Profile
               </motion.span>
             )}
           </AnimatePresence>
@@ -213,7 +218,6 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile Menu Button */}
       <Button
         variant="ghost"
         size="sm"
@@ -223,33 +227,31 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
         <Bars3Icon className="w-5 h-5" />
       </Button>
 
-      {/* Mobile Overlay */}
       <AnimatePresence>
         {isMobileOpen && (
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            animate={{ opacity: 0.5 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: 'easeInOut' }}
             className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
             onClick={() => setIsMobileOpen(false)}
           />
         )}
       </AnimatePresence>
 
-      {/* Desktop Sidebar */}
       <div className="hidden lg:block">
         <SidebarContent />
       </div>
 
-      {/* Mobile Sidebar */}
       <AnimatePresence>
         {isMobileOpen && (
           <motion.div
-            initial={{ x: -280 }}
-            animate={{ x: 0 }}
-            exit={{ x: -280 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="lg:hidden fixed left-0 top-0 h-full w-280 z-50"
+            variants={sidebarVariants}
+            initial="mobileClosed"
+            animate="mobileOpen"
+            exit="mobileClosed"
+            className="lg:hidden fixed left-0 top-0 h-full w-[280px] z-50"
           >
             <SidebarContent />
           </motion.div>
